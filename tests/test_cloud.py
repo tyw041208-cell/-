@@ -20,6 +20,7 @@ class CloudContract(unittest.TestCase):
             if isinstance(n,ast.Call) and isinstance(n.func,ast.Attribute):self.assertNotIn(n.func.attr,forbidden)
     def test_mock_stream_holdout_does_not_change_books(self):
         fake=types.ModuleType('AlgorithmImports');fake.QCAlgorithm=object
+        for name in ('Resolution','TimeZones','DataNormalizationMode','SplitType'):setattr(fake,name,object())
         old=sys.modules.get('AlgorithmImports');sys.modules['AlgorithmImports']=fake
         try:
             spec=importlib.util.spec_from_file_location('g0_cloud_contract',ROOT/'quantconnect/main.py');module=importlib.util.module_from_spec(spec);sys.modules[spec.name]=module;spec.loader.exec_module(module)

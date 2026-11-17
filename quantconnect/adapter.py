@@ -1,5 +1,7 @@
 # This adapter is bundled with core.py into main.py by tools/build_cloud.py.
-from AlgorithmImports import *
+from AlgorithmImports import (
+    QCAlgorithm, Resolution, TimeZones, DataNormalizationMode, SplitType,
+)
 from datetime import datetime, timedelta
 
 class G0Audit(QCAlgorithm):
@@ -67,7 +69,7 @@ class G0Audit(QCAlgorithm):
             bar=data.bars.get(symbol)
             if bar is None: continue
             day=bar.time.date()
-            row=Bar(day,float(bar.open),float(bar.high),float(bar.low),float(bar.close),float(bar.volume))
+            row=G0DailyBar(day,float(bar.open),float(bar.high),float(bar.low),float(bar.close),float(bar.volume))
             valid=self.quality[ticker].add(row)
             if ticker!='SPY' or not START <= day <= DEV_END: continue
             if str(day) in CONFIG['price_sample_dates']:

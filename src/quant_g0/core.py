@@ -1,11 +1,11 @@
 """G0 deterministic checks. No network, orders or strategy evaluation."""
 from dataclasses import dataclass
 from datetime import date
-from decimal import Decimal, ROUND_FLOOR
+from decimal import Decimal as PythonDecimal, ROUND_FLOOR as PY_ROUND_FLOOR
 import hashlib
 import json
 
-D = lambda x: Decimal(str(x))
+D = lambda x: PythonDecimal(str(x))
 START, DEV_END, END = date(2010, 1, 1), date(2019, 12, 31), date(2025, 12, 31)
 
 def guard(day, purpose):
@@ -15,7 +15,7 @@ def guard(day, purpose):
         raise ValueError('window denied')
 
 @dataclass(frozen=True)
-class Bar:
+class G0DailyBar:
     day: date
     open: float
     high: float
@@ -82,7 +82,7 @@ class Ledger:
         if not price.is_finite() or price <= 0: raise ValueError('invalid price')
         if self.signal_day is None or day <= self.signal_day: raise ValueError('lookahead')
         if self.bought: raise ValueError('already bought')
-        qty = max(0, int(((self.cash-self.fee)/price).to_integral_value(rounding=ROUND_FLOOR)))
+        qty = max(0, int(((self.cash-self.fee)/price).to_integral_value(rounding=PY_ROUND_FLOOR)))
         if qty == 0: raise ValueError('insufficient funds')
         delta = -(qty*price+self.fee)
         self.cash += delta; self.qty += qty; self.bought = True
@@ -148,7 +148,7 @@ class Ledger:
                             or not execution_price.is_finite() or execution_price <= 0
                             or not fee.is_finite() or fee != self.fee):
                         raise ValueError('invalid buy input')
-                    n = max(0, int(((cash-fee)/execution_price).to_integral_value(rounding=ROUND_FLOOR)))
+                    n = max(0, int(((cash-fee)/execution_price).to_integral_value(rounding=PY_ROUND_FLOOR)))
                     if n <= 0: raise ValueError('unfunded buy')
                     mismatch |= recorded_qty != n
                     expected_delta = -(D(n)*execution_price+fee)
@@ -167,7 +167,7 @@ class Ledger:
                     if not factor.is_finite() or factor <= 0 or not ref.is_finite() or ref < 0:
                         raise ValueError('invalid split input')
                     exact = D(qty)/factor
-                    whole = int(exact.to_integral_value(rounding=ROUND_FLOOR))
+                    whole = int(exact.to_integral_value(rounding=PY_ROUND_FLOOR))
                     fraction = exact-D(whole)
                     if fraction and ref <= 0: raise ValueError('missing cash-in-lieu input')
                     mismatch |= recorded_qty != qty or recorded_whole != whole

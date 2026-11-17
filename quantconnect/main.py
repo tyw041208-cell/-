@@ -2,11 +2,11 @@
 """G0 deterministic checks. No network, orders or strategy evaluation."""
 from dataclasses import dataclass
 from datetime import date
-from decimal import Decimal, ROUND_FLOOR
+from decimal import Decimal as PythonDecimal, ROUND_FLOOR as PY_ROUND_FLOOR
 import hashlib
 import json
 
-D = lambda x: Decimal(str(x))
+D = lambda x: PythonDecimal(str(x))
 START, DEV_END, END = date(2010, 1, 1), date(2019, 12, 31), date(2025, 12, 31)
 
 def guard(day, purpose):
@@ -16,7 +16,7 @@ def guard(day, purpose):
         raise ValueError('window denied')
 
 @dataclass(frozen=True)
-class Bar:
+class G0DailyBar:
     day: date
     open: float
     high: float
@@ -83,7 +83,7 @@ class Ledger:
         if not price.is_finite() or price <= 0: raise ValueError('invalid price')
         if self.signal_day is None or day <= self.signal_day: raise ValueError('lookahead')
         if self.bought: raise ValueError('already bought')
-        qty = max(0, int(((self.cash-self.fee)/price).to_integral_value(rounding=ROUND_FLOOR)))
+        qty = max(0, int(((self.cash-self.fee)/price).to_integral_value(rounding=PY_ROUND_FLOOR)))
         if qty == 0: raise ValueError('insufficient funds')
         delta = -(qty*price+self.fee)
         self.cash += delta; self.qty += qty; self.bought = True
@@ -149,7 +149,7 @@ class Ledger:
                             or not execution_price.is_finite() or execution_price <= 0
                             or not fee.is_finite() or fee != self.fee):
                         raise ValueError('invalid buy input')
-                    n = max(0, int(((cash-fee)/execution_price).to_integral_value(rounding=ROUND_FLOOR)))
+                    n = max(0, int(((cash-fee)/execution_price).to_integral_value(rounding=PY_ROUND_FLOOR)))
                     if n <= 0: raise ValueError('unfunded buy')
                     mismatch |= recorded_qty != n
                     expected_delta = -(D(n)*execution_price+fee)
@@ -168,7 +168,7 @@ class Ledger:
                     if not factor.is_finite() or factor <= 0 or not ref.is_finite() or ref < 0:
                         raise ValueError('invalid split input')
                     exact = D(qty)/factor
-                    whole = int(exact.to_integral_value(rounding=ROUND_FLOOR))
+                    whole = int(exact.to_integral_value(rounding=PY_ROUND_FLOOR))
                     fraction = exact-D(whole)
                     if fraction and ref <= 0: raise ValueError('missing cash-in-lieu input')
                     mismatch |= recorded_qty != qty or recorded_whole != whole
@@ -256,7 +256,9 @@ def compare_samples(rows, config, dividend_reference=None):
 
 CONFIG = {'version': 'G0-1', 'symbols': ['SPY', 'QQQ', 'IWM', 'EFA', 'EEM', 'TLT', 'GLD', 'SHY'], 'quality_start': '2010-01-01', 'quality_end': '2025-12-31', 'accounting_end': '2019-12-31', 'timezone': 'America/New_York', 'normalization': 'raw', 'fill_forward': False, 'initial_usd': '10000', 'fees_usd': ['0', '1'], 'fee_note': 'fixed per-buy fee assumption, not broker quote', 'reconciliation_tolerance_usd': '0.01', 'price_sample_dates': ['2010-01-04', '2010-01-05', '2010-01-06', '2010-01-07', '2010-01-08'], 'dividend_samples': 'first two SPY events within 2010-2019', 'interest_usd': '0', 'research_cost_usd': None, 'tax_usd': None, 'fx_rate': None, 'holdout_performance_access': False, 'sample_tolerances': {'price': '0.01', 'dividend': '0.000001', 'split': '1E-8'}}
 # This adapter is bundled with core.py into main.py by tools/build_cloud.py.
-from AlgorithmImports import *
+from AlgorithmImports import (
+    QCAlgorithm, Resolution, TimeZones, DataNormalizationMode, SplitType,
+)
 from datetime import datetime, timedelta
 
 class G0Audit(QCAlgorithm):
@@ -324,7 +326,7 @@ class G0Audit(QCAlgorithm):
             bar=data.bars.get(symbol)
             if bar is None: continue
             day=bar.time.date()
-            row=Bar(day,float(bar.open),float(bar.high),float(bar.low),float(bar.close),float(bar.volume))
+            row=G0DailyBar(day,float(bar.open),float(bar.high),float(bar.low),float(bar.close),float(bar.volume))
             valid=self.quality[ticker].add(row)
             if ticker!='SPY' or not START <= day <= DEV_END: continue
             if str(day) in CONFIG['price_sample_dates']:

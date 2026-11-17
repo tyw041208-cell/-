@@ -62,8 +62,12 @@ test_wrong_corporate_action_field (test_r01.SampleRegression.test_wrong_corporat
 test_wrong_price_date (test_r01.SampleRegression.test_wrong_price_date) ... ok
 test_wrong_price_field (test_r01.SampleRegression.test_wrong_price_field) ... ok
 test_wrong_symbol (test_r01.SampleRegression.test_wrong_symbol) ... ok
+test_decimal_and_bar_survive_hostile_exports (test_r02.R02Compatibility.test_decimal_and_bar_survive_hostile_exports) ... ok
+test_initialize_and_on_data_with_conflicting_platform_names (test_r02.R02Compatibility.test_initialize_and_on_data_with_conflicting_platform_names) ... ok
+test_no_wildcard_imports_in_generated_bundle (test_r02.R02Compatibility.test_no_wildcard_imports_in_generated_bundle) ... ok
+test_reproduce_reported_wildcard_failure (test_r02.R02Compatibility.test_reproduce_reported_wildcard_failure) ... ok
 
 ----------------------------------------------------------------------
-Ran 64 tests in 0.019s
+Ran 68 tests in 0.048s
 
 OK

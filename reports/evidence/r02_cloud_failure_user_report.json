@@ -1,0 +1,12 @@
+{
+  "source": "user-provided actual cloud failure; not independently re-executed",
+  "project_id": 39565431,
+  "lean_engine": "2.5.0.0.18269",
+  "status": "INITIALIZATION_FAILED",
+  "reported_line": "main.py line 25: D = lambda x: Decimal(str(x))",
+  "message": "Argument mismatch: argument 1 ('value') expected float, got str.",
+  "call_path": "Ledger.__init__ -> initialize line 290",
+  "editor_report": "custom Bar conflicts with platform Bar",
+  "backtest_id": null,
+  "post_fix_cloud_run": "BLOCKED: pending user rerun"
+}

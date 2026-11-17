@@ -1,6 +1,6 @@
 # G0 数据资格与基准会计验证
 
-当前版本：**G0-R01 独立审查整改**。当前结论：**BLOCKED，未完成真实数据验收**。本项目仅 TASK_001；不实施 G1、不做策略排名、不连接实盘。
+当前版本：**G0-R02 云端兼容性整改**。当前结论：**BLOCKED，未完成真实数据验收**。本项目仅 TASK_001；不实施 G1、不做策略排名、不连接实盘。
 
 ## 本地运行（无需安装第三方包）
 
@@ -78,3 +78,11 @@ python3 tools/compare_samples.py reports/evidence/independent_samples.csv report
 ```
 
 账本重建不再采用原日志的分红持仓、拆股前股数或拆后股数作为计算输入，而以重建自身持仓计算，再逐项核查日志股数与现金增量。原始事件字段不一致即失败（即使金额差小于0.01美元）；0.01美元容限仅保留给期末状态对账。共同输入的价格、分红单位金额、拆股因子若被一致改写，仍需外部证据验证，本次修复不声称有密码学防篡改能力。
+
+## G0-R02：Decimal / Bar 命名冲突修复
+
+用户实际云端运行：项目39565431，LEAN Engine 2.5.0.0.18269，初始化在 Decimal(str(x)) 失败。原 AlgorithmImports 通配符在执行时覆盖了 Python Decimal；原离线平台stub没有导出冲突名称，未检出此问题。
+
+现使用 PythonDecimal / PY_ROUND_FLOOR 明确别名，自定义 Bar 改为 G0DailyBar，平台只显式导入 QCAlgorithm、Resolution、TimeZones、DataNormalizationMode、SplitType。参数与会计逻辑未改变。
+
+请使用 **g0-r02 分支**的 quantconnect/main.py 整文件替换项目39565431中的旧main.py，再运行 Backtest；不要仅修改云端一处而漏掉生成脚本。引擎保持用户实际版本，记录回测ID、编译与完整错误或G0日志。没有收到修复后的真实运行日志前，云端兼容性仍为BLOCKED；本地模拟通过不能替代真实LEAN运行。本轮未修改云端项目，也没有重跑实际回测。

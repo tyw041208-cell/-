@@ -4,10 +4,10 @@ from pathlib import Path
 CONFIG=json.loads((Path(__file__).resolve().parents[1]/"config/g0.json").read_text())
 from datetime import date
 from decimal import Decimal
-from quant_g0.core import Bar,Quality,Ledger,guard,compare_samples
+from quant_g0.core import G0DailyBar,Quality,Ledger,guard,compare_samples
 A,B,C=date(2010,1,4),date(2010,1,5),date(2010,1,6)
 def bar(day=A,**kw):
-    row=dict(day=day,open=100,high=101,low=99,close=100,volume=10);row.update(kw);return Bar(**row)
+    row=dict(day=day,open=100,high=101,low=99,close=100,volume=10);row.update(kw);return G0DailyBar(**row)
 def bought(fee='0'):
     b=Ledger(fee=fee); b.signal(A); b.buy(B,100);return b
 class CoreTests(unittest.TestCase):
