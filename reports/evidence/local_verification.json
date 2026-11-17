@@ -1,0 +1,49 @@
+{
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "project": "/workspace/work/g0",
+  "results": [
+    {
+      "label": "unittest",
+      "command": [
+        "/workspace/work/g0/.venv/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "compile",
+      "command": [
+        "/workspace/work/g0/.venv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "src",
+        "tests",
+        "tools",
+        "quantconnect"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "sample_comparison",
+      "command": [
+        "/workspace/work/g0/.venv/bin/python",
+        "tools/compare_samples.py",
+        "reports/evidence/independent_samples.csv"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "status": "PASS"
+    }
+  ]
+}

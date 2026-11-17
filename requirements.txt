@@ -1,0 +1,2 @@
+# Python 3.12.14; standard library only. No pip install required.
+# Cloud AlgorithmImports is supplied by QuantConnect LEAN; record cloud engine version on run.

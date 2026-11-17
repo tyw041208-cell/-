@@ -1,0 +1,9 @@
+symbol,inception_date,first_listing_date,exchange,timezone,issuer_source_url,accessed_at,license_note,status
+SPY,,,,America/New_York,,,,BLOCKED
+QQQ,,,,America/New_York,,,,BLOCKED
+IWM,,,,America/New_York,,,,BLOCKED
+EFA,,,,America/New_York,,,,BLOCKED
+EEM,,,,America/New_York,,,,BLOCKED
+TLT,,,,America/New_York,,,,BLOCKED
+GLD,,,,America/New_York,,,,BLOCKED
+SHY,,,,America/New_York,,,,BLOCKED
