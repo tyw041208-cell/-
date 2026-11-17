@@ -1,4 +1,7 @@
 import unittest
+import json
+from pathlib import Path
+CONFIG=json.loads((Path(__file__).resolve().parents[1]/"config/g0.json").read_text())
 from datetime import date
 from decimal import Decimal
 from quant_g0.core import Bar,Quality,Ledger,guard,compare_samples
@@ -63,14 +66,9 @@ class CoreTests(unittest.TestCase):
             with self.assertRaises(ValueError):guard(d,'quality')
     def test_purpose_denied(self):
         with self.assertRaises(ValueError):guard(A,'ranking')
-    def test_missing_independent_evidence(self):self.assertEqual(compare_samples([])['status'],'BLOCKED')
-    def test_independent_samples(self):
-        rows=[]
-        for kind,n in [('price',5),('dividend',2)]:
-            for i in range(n): rows.append(dict(date=f'2010-01-{4+i:02d}',kind=kind,qc_value='100',independent_value='100',normalization='raw',source_url='https://example.test/synthetic',license_note='SYNTHETIC unit test only',tolerance='.01',tolerance_reason='synthetic cent precision'))
-        self.assertEqual(compare_samples(rows)['status'],'PASS');rows[0]['independent_value']='101';self.assertEqual(compare_samples(rows)['status'],'FAIL')
+    def test_missing_independent_evidence(self):self.assertEqual(compare_samples([],CONFIG)['status'],'BLOCKED')
     def test_sample_holdout_denied(self):
-        with self.assertRaises(ValueError):compare_samples([dict(date='2023-01-03')])
+        with self.assertRaises(ValueError):compare_samples([dict(date='2023-01-03')],CONFIG)
     def test_invalid_fee(self):
         for fee in ['-1','NaN','Infinity']:
             with self.assertRaises(ValueError):Ledger(fee=fee)

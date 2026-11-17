@@ -1,9 +1,10 @@
 {
-  "config/g0.json": "573f2fda13d784407232dc870992e2c378a400d009aba3d7d0788cbfded036db",
-  "quantconnect/adapter.py": "3626714d63317f28c63a862292150d2c9c2b1177f000dd6b344e5076f8946aac",
-  "quantconnect/main.py": "46baf0fc1d294fa03f8e1589f60a68bd7d8c29198761c45253e800219cc754fe",
+  "config/g0.json": "304d8b1d3267c9bb7a9f0e8e9a42c58b3e3d15ba3edc249e90f09a7bb6fea062",
+  "quantconnect/adapter.py": "c46b424d145b21055b47cf91e19805bbf48d4794b6a458b0d0f2506df11486b6",
+  "quantconnect/main.py": "b8d95c8678dfaaf17b1d3b6b12f0a5e1402c0b392a6b4cd47a1e2facf4414bb8",
   "src/quant_g0/__init__.py": "69a81fb35d443b2d5778228e991300d09909ff6e500fe7b77c3c6f3b1b3fdd31",
-  "src/quant_g0/core.py": "1659605653895dc126acae0dc6eb0e7963dd409648a4efe20c71de593f95e222",
-  "tests/test_cloud.py": "0d786077c12e041a5af50d1d39357e72241f42f1550b5cb9e64e5c840b66a08f",
-  "tests/test_core.py": "96f3fb9962d0afdb54ac21d36ad851dd9e81735c80a624f012e3e5fa273ec343"
+  "src/quant_g0/core.py": "6d18661a7b550daf2f15ff73995a198eefb598f53faaa28e702fc7a9aa654293",
+  "tests/test_cloud.py": "9e4944083d8dbde7d54070bbb1ddf9bfc63ed96bc27b3833273b7255810bb1b9",
+  "tests/test_core.py": "9f62d0d95c25b0686ebd31e9eaba8005af8842b844f48ca00783af289a5434bc",
+  "tests/test_r01.py": "646cbfb613bc957cec04cc8f2712449d85d545d5025174ebb74c5827acbcc6d8"
 }

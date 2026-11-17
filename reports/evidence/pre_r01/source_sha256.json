@@ -1,0 +1,9 @@
+{
+  "config/g0.json": "573f2fda13d784407232dc870992e2c378a400d009aba3d7d0788cbfded036db",
+  "quantconnect/adapter.py": "3626714d63317f28c63a862292150d2c9c2b1177f000dd6b344e5076f8946aac",
+  "quantconnect/main.py": "46baf0fc1d294fa03f8e1589f60a68bd7d8c29198761c45253e800219cc754fe",
+  "src/quant_g0/__init__.py": "69a81fb35d443b2d5778228e991300d09909ff6e500fe7b77c3c6f3b1b3fdd31",
+  "src/quant_g0/core.py": "1659605653895dc126acae0dc6eb0e7963dd409648a4efe20c71de593f95e222",
+  "tests/test_cloud.py": "0d786077c12e041a5af50d1d39357e72241f42f1550b5cb9e64e5c840b66a08f",
+  "tests/test_core.py": "96f3fb9962d0afdb54ac21d36ad851dd9e81735c80a624f012e3e5fa273ec343"
+}

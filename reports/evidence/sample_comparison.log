@@ -2,5 +2,6 @@
   "status": "BLOCKED",
   "price_days": 0,
   "dividend_events": 0,
-  "failures": []
+  "failures": [],
+  "dividend_reference": "BLOCKED: complete cloud event reference required"
 }

@@ -24,7 +24,7 @@ class CloudContract(unittest.TestCase):
         try:
             spec=importlib.util.spec_from_file_location('g0_cloud_contract',ROOT/'quantconnect/main.py');module=importlib.util.module_from_spec(spec);sys.modules[spec.name]=module;spec.loader.exec_module(module)
             a=module.G0Audit();a.assets={'SPY':'spy'};a.quality={'SPY':module.Quality([datetime(2010,1,4).date(),datetime(2010,1,5).date(),datetime(2023,1,3).date()])};a.actions={'SPY':dict(dividends=0,splits=0,invalid=0)}
-            a.books=[module.Ledger(),module.Ledger(fee=1)];a.accounting_block=None;a.div_sample_count=0;a.max_error=module.D(0);a.reconciled_days=0;a.last_dev=None;logs=[];a.debug=logs.append
+            a.books=[module.Ledger(),module.Ledger(fee=1)];a.accounting_block=None;a.div_sample_count=0;a.dev_dividends=[];a.max_error=module.D(0);a.reconciled_days=0;a.last_dev=None;logs=[];a.debug=logs.append
             for day in [datetime(2010,1,4),datetime(2010,1,5),datetime(2023,1,3)]:
                 b=types.SimpleNamespace(time=day,open=100,high=101,low=99,close=100,volume=10)
                 a.on_data(types.SimpleNamespace(dividends={},splits={},bars={'spy':b}))

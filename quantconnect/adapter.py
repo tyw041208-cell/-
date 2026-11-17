@@ -20,6 +20,7 @@ class G0Audit(QCAlgorithm):
         self.accounting_block = None
         self.last_dev = None
         self.div_sample_count = 0
+        self.dev_dividends = []
         for ticker in CONFIG['symbols']:
             security = self.add_equity(ticker, Resolution.DAILY, fill_forward=False,
                                       extended_market_hours=False,
@@ -51,6 +52,8 @@ class G0Audit(QCAlgorithm):
                 if not D(val).is_finite() or D(val)<=0:
                     self.actions[ticker]['invalid'] += 1
                 if ticker=='SPY' and START <= day <= DEV_END:
+                    if kind == 'dividend':
+                        self.dev_dividends.append(dict(date=str(day),qc_value=str(val)))
                     if kind=='dividend' and self.div_sample_count<2:
                         self.debug('G0_SAMPLE '+json.dumps(dict(date=str(day),kind=kind,value=str(val),normalization='raw')))
                         self.div_sample_count+=1
@@ -92,6 +95,18 @@ class G0Audit(QCAlgorithm):
                           calendar='LEAN exchange hours; independent calendar review pending',
                           timezone='America/New_York',normalization='RAW')
             self.debug('G0_QUALITY '+json.dumps(result,sort_keys=True))
+        spy_quality = self.quality['SPY']
+        expected_dev = {d for d in spy_quality.expected if d <= DEV_END}
+        observed_dev = {d for d in spy_quality.seen if d <= DEV_END}
+        dates = [r['date'] for r in self.dev_dividends]
+        complete = (expected_dev == observed_dev and bool(expected_dev)
+                    and not spy_quality.duplicates and not spy_quality.invalid
+                    and not self.actions['SPY']['invalid']
+                    and dates == sorted(set(dates)))
+        reference = dict(symbol='SPY',start=str(START),end=str(DEV_END),
+                         complete=complete,event_dates=dates,
+                         first_two=self.dev_dividends[:2])
+        self.debug('G0_DIVIDEND_REFERENCE '+json.dumps(reference,sort_keys=True))
         self.debug('G0_CASH '+json.dumps(dict(initial_usd='10000',end_usd='10000',interest='0',assumption=True)))
         if self.accounting_block or self.last_dev is None:
             self.debug('G0_ACCOUNTING BLOCKED '+str(self.accounting_block or 'no development data'))

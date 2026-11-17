@@ -1,6 +1,6 @@
 # G0 数据资格与基准会计验证
 
-当前结论：**BLOCKED，未完成真实数据验收**。本项目仅 TASK_001；不实施 G1、不做策略排名、不连接实盘。
+当前版本：**G0-R01 独立审查整改**。当前结论：**BLOCKED，未完成真实数据验收**。本项目仅 TASK_001；不实施 G1、不做策略排名、不连接实盘。
 
 ## 本地运行（无需安装第三方包）
 
@@ -51,8 +51,8 @@ PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -v
 1. 对每只 ETF 从发行人官方基金页面/招募文件确认证券身份、基金成立日与交易所首次上市日，二者分别记录；2010首次数据不等于上市日。填写 `reports/evidence/asset_registry.csv`，记录 URL、访问日、许可、来源事实、日历和时区。模板不预填未经核实的日期。
 2. 使用独立于 QuantConnect 数据链的合法来源：发行人官方历史分配记录核对 SPY 最早两个开发窗分红事件；独立授权行情源核对预定五日**未复权常规交易时段收盘价**。不同价格供应商不一定独立，记录底层供应商。不默认 Yahoo/Stooq/Alpaca 数据免费、独立或允许下载。
 3. 如来源仅给 adjusted close，则不匹配，标 BLOCKED；不能悄悄换成复权价格。分红须统一每股美元、除息日期，不能将支付日当除息日。若无拆股则记录云端观察数及独立来源；无法确认不得写“没有拆股”。
-4. `independent_samples.csv` 一行一事件，填写日期、kind（price/dividend/split）、qc_value、independent_value、normalization（raw）、source_url、license_note、tolerance、tolerance_reason。金额容差在查看差异前冻结：收盘价建议按源报价精度0.01美元；分红建议0.000001美元（若源精度不足先写清），拆股因子建议0.00000001。不要为使结果通过扩大容差。
-5. 在查看真实数据前保留模板及配置指纹；真实数据两源都到位后运行 compare_samples.py。工具要求至少5个不同价格日期、2个不同分红日期，超容差 FAIL、缺样本 BLOCKED；该工具不自动判断来源独立性或许可证，仍需人工审查，不因比较通过就宣布 G0 PASS。
+4. `independent_samples.csv` 一行一事件，填写日期、kind（price/dividend/split）、qc_value、independent_value、normalization（raw）、source_url、license_note、tolerance、tolerance_reason。金额容差已按原说明锁定到配置：收盘价0.01美元、分红0.000001美元、拆股因子0.00000001；样本不能放宽或收紧。源精度不足应阻塞，不得修改容差使其通过。
+5. 在查看真实数据前保留模板及配置指纹；真实数据两源都到位后运行 compare_samples.py。工具要求恰好配置中预登记的5个 SPY 原始收盘价日期，以及开发窗最早两次 SPY 分红事件；重复、错误日期/字段、容差篡改直接拒绝。超容差 FAIL、缺样本或缺完整云端事件索引 BLOCKED；该工具不自动判断来源独立性或许可证，仍需人工审查，不因比较通过就宣布 G0 PASS。
 
 ## 官方文档核查
 
@@ -64,3 +64,17 @@ PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -v
 - 日历：https://www.quantconnect.com/docs/v2/writing-algorithms/securities/market-hours
 
 历史数据 equity 文档地址本次访问失败，未据此宣称 history API 验证。本项目采用事件流，不依赖该 API。实际账号数据授权、免费运行资源、数据覆盖和许可仍需平台确认。
+
+## G0-R01：整改后独立样本验证
+
+配置仅将既有文档容差明确写入 `sample_tolerances`，不改变资产、日期、金额或费用。CSV 新增 `symbol` 与 `field`；symbol 固定 SPY，field 分别为 close / distribution / factor。
+
+真实云端完成后，只有许可允许时，从 `G0_DIVIDEND_REFERENCE` 日志复制其 JSON 部分到 `reports/evidence/dividend_reference.json`。事件索引包含完整开发窗中观察到的分红日期及最早两次的金额；不得从待比较 CSV 反向生成或自行挑选日期。complete 标志仅表示当前输入事件流覆盖/检查状态，不能证明供应商未遗漏事件，仍须独立来源审查。未取得真实索引时不要用合成测试 fixture 代替。
+
+```sh
+python3 tools/build_cloud.py
+python3 tools/verify.py
+python3 tools/compare_samples.py reports/evidence/independent_samples.csv reports/evidence/dividend_reference.json
+```
+
+账本重建不再采用原日志的分红持仓、拆股前股数或拆后股数作为计算输入，而以重建自身持仓计算，再逐项核查日志股数与现金增量。原始事件字段不一致即失败（即使金额差小于0.01美元）；0.01美元容限仅保留给期末状态对账。共同输入的价格、分红单位金额、拆股因子若被一致改写，仍需外部证据验证，本次修复不声称有密码学防篡改能力。

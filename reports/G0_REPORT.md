@@ -1,96 +1,76 @@
-# G0 开发与验证报告
+# G0-R01 独立代码审查整改报告
 
-日期：2026-11-17，展示时区 Asia/Seoul。实验版本 G0-1。
+日期：2026-11-17；时区 Asia/Seoul。**结论：BLOCKED，等待独立复审。**
 
-**总体结论：BLOCKED。离线实现和测试已完成，真实数据与会计验收未完成，不建议 G0 PASS，不进入 TASK_002。**
+本报告为当前有效整改结果；原 G0 报告及28项测试证据保存在 `evidence/pre_r01/`。本次不把本地合成测试通过描述为真实数据资格通过。
 
-## 当前基线与范围
+## 变更范围
 
-完整阅读上传的 AGENTS.md、V0_PRD.md、TASK_001.md、PROJECT_MASTER.md；原文件逐字复制保留在项目根目录。主记录开头当前有效基线及21、22节优先于旧章节。本轮明确指令及 TASK_001 限定为八 ETF 数据资格、SPY 开发窗会计；历史策略与框架建议没有转为开发任务。README_START.md 也已阅读。
+基于交付提交 `5cd3075`，在独立分支 `g0-r01` 修复两项审查发现。资产池、2010–2025质量窗、2010–2019会计窗、五个价格抽样日、RAW、整股、USD10000、0/1美元费用、零利息及下一观察交易日开盘的会计假设均未改变。无采购、真实账户、真实订单、留出策略收益访问或 TASK_002 开发。
 
-项目目录 `/workspace/work/g0`，独立于附件目录，不覆盖用户附件。当前 `/workspace` 虽有受保护 `.git` 目录，但 `git status` 返回 not a git repository，没有假装已关联 GitHub 仓库，也未修改该 `.git`。Python 虚拟环境 `.venv` 用已有系统 Python 创建；无第三方包安装、无系统设置修改。初次附件下载工具报告工作区未就绪，环境 ready 后重试成功，没有丢失文件。
+## R01-1：独立账本重建
 
-## 环境与执行记录
+旧实现虽然没有直接读取当前持仓计算股息，但仍使用分红事件中的 original_qty 和拆股记录中的 original_qty/whole 作为输入，存在同源错误被重复接受的问题。已修复：
 
-| 项目 | 真实结果 |
-|---|---|
-| 系统 | Debian GNU/Linux 13.6，Linux 6.18.57 x86_64 |
-| Python | 3.12.14，虚拟环境运行与文件读写成功 |
-| Git | 2.52.0，命令可运行；当前目录不是项目仓库 |
-| 依赖 | 仅标准库；requirements.txt 记录版本及不安装的理由 |
-| 云端 LEAN | 无本地运行时；没有启动实际云端任务 |
-| QuantConnect 账号/数据权限 | 未登录、未授权、无法验证实际额度 |
-| GitHub | 本轮不需 GitHub API；没有推送或创建远程仓库 |
+- 从初始现金和零持仓独立重放；买入数量依据重建现金、原始成交价与冻结费用重新计算，不采用日志买入数量作为真值。
+- 分红依据重建自身持仓乘原始每股分红计算；记录的分红持仓只用于相等性检查。
+- 拆股从重建自身股数除以原始拆股因子，独立向下取整、计算零股及现金补偿；原拆前/拆后数量只作为待核对结果。
+- 逐事件比较原现金增量、记录股数和重建结果，原日志输出字段有差异立即判失败，即使差异小于美分。期末现金、股数市值和净值仍按原0.01美元容限核对，禁止调用方放宽容限。
+- 拒绝未知/损坏/非有限事件、事件倒序、未来事件和重复同日公司行为。缺少合法零股补偿价仍阻塞，不补造。
 
-本轮实测主要命令与结果：
+原始成交价、分红单位金额、拆股因子与补偿价仍是共享输入；若这些输入和全部输出被一致改写，纯本地重放不能证明真实性。需外部供应商证据和平台核对；本修复不声称建立防篡改签名或平台持仓对账。
+
+## R01-2：独立样本验收
+
+- 价格样本必须为 SPY、RAW、close，日期集合严格等于 `config/g0.json` 已登记的2010-01-04至2010-01-08五日，任意替换或额外价格日期被拒绝。
+- `sample_tolerances` 将原 README 中已说明的容差明确锁定到配置：价格0.01美元、分红0.000001美元、拆股因子0.00000001。配置值同时与代码冻结值核查；CSV容差必须数值相等，扩大或缩小都被拒绝。不是修改实验成本/时间/资产参数。
+- 分红必须为SPY、distribution，日期严格对应完整开发窗云端事件索引中最早两次事件，QC金额亦须与该索引一致。重复行、错误标的/字段、篡改容差、后续分红替换首两次均拒绝。
+- 云端增加 `G0_DIVIDEND_REFERENCE`：开发窗观察到的全部分红日期及最早两次金额。要求日期唯一有序、开发窗覆盖检查通过；比较工具接收独立于样本CSV的参考JSON。缺参考或样本不齐时为 BLOCKED；结构无效、索引不完整、篡改或超差为 FAIL/拒绝。
+- 该索引只证明当前事件流选择一致性，不能自动证明供应商没有漏掉公司行为，也不能自动鉴定来源独立性或许可证。真实独立核对仍待完成，不编造最早两次真实分红日期。
+
+## 测试与执行证据
+
+运行环境：Python 3.12.14、Git 2.52.0、Debian13.6。使用现有标准库，无新依赖、无安装。工作目录 `/workspace/work/g0-github-delivery`。
 
 ```sh
-python3 --version                         # 3.12.14
- git --version                            # 2.52.0
- git status --short                       # 失败：当前不是仓库
-python3 -m venv work/g0/.venv              # exit 0
-cd /workspace/work/g0
-.venv/bin/python tools/build_cloud.py      # exit 0
-PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -v
-.venv/bin/python -m compileall -q src tests tools quantconnect
-.venv/bin/python tools/compare_samples.py reports/evidence/independent_samples.csv
-.venv/bin/python tools/verify.py
+python3 tools/build_cloud.py
+python3 tools/verify.py
 ```
 
-最终实际命令、退出码、Python 和平台信息见 `evidence/local_verification.json`；完整离线日志见 `evidence/unittest.log`、`compile.log`、`sample_comparison.log`。`source_sha256.json` 记录代码/配置/测试指纹。没有用合成价格输出任何真实回测业绩。
+verify.py 实际执行：
 
-## 交付实现
+```sh
+PYTHONPATH=src python3 -m unittest discover -s tests -v
+python3 -m compileall -q src tests tools quantconnect
+python3 tools/compare_samples.py reports/evidence/independent_samples.csv
+```
 
-- `src/quant_g0/core.py`：日历预期集合核对、覆盖、缺失、重复、OHLC/非正/非有限价格、成交量、数据指纹；RAW 整股账本、分红与拆股、预留费用、现金守恒、独立日志重建、时间窗门禁。
-- `quantconnect/main.py`：可整文件粘贴至 QuantConnect Python 项目的单文件算法；八 ETF 事件流与公司行为统计，2010–2025质量检查，SPY 2010–2019会计。没有订单接口调用，拒绝 live_mode。
-- `quantconnect/adapter.py`、`tools/build_cloud.py`：维护源及可复现的单文件生成器。
-- `config/g0.json`：预登记时间窗、八标的、RAW、费用情景、抽样日、0.01美元对账容差及未知成本。
-- `tests/`：核心与云端适配的离线契约测试；fake API 清楚标明不是 LEAN 实测。
-- `tools/compare_samples.py`、两个证据 CSV 模板：独立合法来源核对入口，空证据拒绝通过。
-- `README.md`：中文本地命令、免费云端项目创建/粘贴/运行/日志操作、许可限制、口径及 API 未验证说明。
+| 检查 | 真实结果 |
+|---|---|
+| 首轮整改测试 | 59项通过，失败0、跳过0 |
+| 增加字段/重复/配置不变检查后 | 63项通过，失败0、跳过0 |
+| 最终完整测试 | **64项通过，失败0、跳过0，退出码0** |
+| 语法检查 | compileall退出码0 |
+| main.py生成一致性 | 单文件等于核心源码+配置+适配器，测试通过 |
+| 缺真实样本的CLI | 真实输出BLOCKED，退出码1，为预期拒绝；不代表样本验证通过 |
+| 交付ZIP | 打包后CRC检查及逐文件字节核对通过 |
 
-## 真实测试结果
+针对性反例包含：伪造分红持仓并同步篡改现金；伪造拆前/拆后股数及零股现金；单改日志现金增量；改买入数量并同步改持仓；重复公司行为并同步改现金；未知事件、NaN、未来/倒序事件；非预登记价格日、重复价格/分红、错误标的/字段、挑选后续分红、参考QC金额篡改、三类容差扩大及收紧、参考索引倒序/留出日期/不完整、临界容差和超差。
 
-首轮核心单元测试 25/25 通过。加强独立账本重建后，最终 28/28 通过，失败0、跳过0。包括 25 项核心用例和3项适配契约测试：生成文件一致性、无订单/网络/策略绩效方法、模拟2023数据不改变开发窗账本。非法价格等用例含多个子案例，不额外夸大测试总数。
+`reports/evidence/unittest.log` 是最终完整真实测试日志，`local_verification.json` 记录实际命令/退出码，`source_sha256.json` 记录源码/配置/测试指纹，`sample_comparison.json` 记录当前真实空证据结论。历史证据保留在 `pre_r01`，不得误认为本次64项日志。测试中分红日期和金额均明确为合成fixture，不是真实市场证据。
 
-| 验证 | 结果 | 证据与限制 |
-|---|---|---|
-| 文件读写/虚拟环境 | PASS | 真实创建代码、生成文件及日志，虚拟环境运行成功 |
-| 离线测试 | PASS | 28个 unittest，通过；全为合成数据或静态检查 |
-| Python语法编译 | PASS | compileall exit 0；不代表 AlgorithmImports 可导入或 LEAN 可运行 |
-| 空独立证据拒绝通过 | PASS（拒绝行为） | 比较程序真实 exit 1；实际比较结论 BLOCKED，0个价格日期、0个分红事件 |
-| 八ETF真实数据 | BLOCKED | 未有云端统计，不能给出真实缺失率、股息数、拆股数或上市日期 |
-| 独立五价格日/两分红 | BLOCKED | 未取得两源实值及来源许可；模板没有伪造数据 |
-| 真实开发窗会计 | BLOCKED | 未获得真实输入；云端脚本待执行 |
-| 平台持仓对账 | BLOCKED | 本实现使用影子账本与独立计算路径，不提交平台订单，不能冒称已与平台投资组合一致 |
-| 最终留出安全边界 | PASS（代码与合成检查） | 2020之后禁止会计估值；2023–2025只做质量计数，无策略排名 |
-| 全口径净收益 | BLOCKED | 真实投资收益、税费、汇兑、数据/API/运维费用未知；不输出数字 |
+## 修改文件清单
 
-最后一个比较命令退出1是预期的证据缺失，不是测试通过意义上的真实数据合格；verify.py 对“正确拒绝空证据”的 PASS 与独立验证本身的 BLOCKED 分开。
+核心/配置/适配：`src/quant_g0/core.py`、`config/g0.json`、`quantconnect/adapter.py`、重新生成的 `quantconnect/main.py`。
 
-## 会计假设及适用限制
+测试/工具：`tests/test_core.py`、`tests/test_cloud.py`、新增 `tests/test_r01.py`、`tools/compare_samples.py`。
 
-USD 10000 初始现金，首个观察日收盘形成固定持有信号，下一观察交易日开盘影子买入整股；手续费0或每笔1美元（示例假设）；剩余现金保留、现金利息0（假设）、不再投资股息、不卖出。RAW 加 LEAN 除息日入现金；这不是实际付款日/税后现金验证。拆股按 LEAN 价格因子处理；涉及零股的反向拆股若缺少可信现金补偿价，主动阻塞。
+文档/证据：`README.md`、本报告、`reports/evidence/independent_samples.csv`、`local_verification.json`、`sample_comparison.json`、`sample_comparison.log`、`source_sha256.json`、`unittest.log`，新增 `pre_r01` 历史证据。重新生成根目录 `G0_DELIVERY.zip` 和 `SHA256SUMS.txt`，避免整改分支附带旧代码压缩包。Git提交详情为完整改动清单。
 
-独立日志重建使用买入股数/价格/费用及分红/拆股原始事件重新计算，不读取可变现金与持仓字段。误差容限在真实运行前固定0.01美元；内部Decimal保留精度。此方式可发现现金与股数漂移，但共享相同事件输入，不能排除供应商事件本身错误，也不等于另一供应商或平台验证。
+## 剩余阻塞与用户操作
 
-为了不生成2010–2025策略绩效，未在平台投资组合持有SPY，平台现金曲线不能作为SPY结果。云端输出只包含开发窗影子账本期末现金、股数、净值与重建最大误差。真实税/滑点/价差/汇兑和研发成本没有计量，不能据此宣称可投资盈利。
-
-## 文档核查及失败/阻塞
-
-2026-11-17访问 QuantConnect 官方免费层、许可、公司行为、证券订阅及日历公共文档；链接与 API 说明在 README。官方页面描述个人 Free 组织有一研究、一回测节点；云内行情许可不等于本地下载许可。账号实际资格仍未验证。
-
-历史数据 equity 页面一次访问失败（工具返回 inaccessible）；没有编造其内容。最终实现不调用 history。当前未获得可执行的 QuantConnect 连接、云端 LEAN 或合法真实价格输入，未绕过登录或下载限制。`is_date_open`、日线 precise end、字典映射和 Python/.NET 兼容性须真实云端验证。
-
-尚需证据：8资产证券身份及上市/成立日、独立日历复核、实际公司行为数量和有效性、真实5日价格/2次分红对照、云端日志及运行引擎版本、数据许可确认、实际开发窗会计。任何一项缺失，不把 G0 标成 PASS。未发生购买、券商连接、真实订单、策略筛选或最终留出策略绩效访问。
-
-## 用户下一步（最小行动）
-
-1. 按 README 在 QuantConnect Free 新建 Python 算法项目，复制整个 `quantconnect/main.py`，仅运行 Backtest；不升级、不连接券商。
-2. 提供完整编译/运行异常或允许复制的 G0 聚合日志、引擎版本、项目/回测标识。若额度不足或要求付费，停止并带回提示。
-3. 核实发行人身份/上市日期与授权的独立来源；统一未复权收盘价、除息日每股金额，按预登记容差完成至少5日价格及2次分红。仅复制许可证允许的小量样本/差异，不能下载受限历史。
-4. 将报告、日志和证据带回审查。补齐实际证据前 G0 保持 BLOCKED；之后仍须审查，不自动开展 TASK_002。
-
-## 交付路径限制
-
-应用预设 `/codex/.../output` 目录在本执行环境不存在；尝试创建时系统返回 Read-only file system。不是项目测试失败，也不是账号授权问题。交付改存可写的 `/workspace/output`，不修改系统挂载或权限。
+1. 未运行真实 QuantConnect Cloud/LEAN；main.py 已生成并通过本地语法/模拟契约检查，不能声称云端API和真实数据已运行通过。
+2. 仍缺八ETF上市/身份、真实覆盖/独立交易日历、公司行为及数据许可证据。
+3. 仍缺预登记五日真实RAW收盘价、开发窗最早两次SPY真实分红及独立授权来源。只有许可允许时复制G0_DIVIDEND_REFERENCE的JSON到 `reports/evidence/dividend_reference.json`，再按 README 运行比较；不得从待检CSV自行生成索引，不上传受限原始历史。
+4. 真实开发窗会计与平台持仓对账仍未验证；真实成本、税费、汇兑和全口径经济净收益未知。
+5. 用户将整改分支、Commit及日志交独立审查者复审；本轮保持BLOCKED，不自动开展TASK_002。

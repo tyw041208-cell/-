@@ -11,7 +11,6 @@ test_fractional_split_blocks (test_core.CoreTests.test_fractional_split_blocks) 
 test_fractional_split_cash (test_core.CoreTests.test_fractional_split_cash) ... ok
 test_good_quality (test_core.CoreTests.test_good_quality) ... ok
 test_holdout_and_validation_accounting_denied (test_core.CoreTests.test_holdout_and_validation_accounting_denied) ... ok
-test_independent_samples (test_core.CoreTests.test_independent_samples) ... ok
 test_insufficient (test_core.CoreTests.test_insufficient) ... ok
 test_invalid_fee (test_core.CoreTests.test_invalid_fee) ... ok
 test_invalid_prices (test_core.CoreTests.test_invalid_prices) ... ok
@@ -26,8 +25,45 @@ test_signal_then_fill (test_core.CoreTests.test_signal_then_fill) ... ok
 test_split_conservation (test_core.CoreTests.test_split_conservation) ... ok
 test_unexpected_session (test_core.CoreTests.test_unexpected_session) ... ok
 test_zero_volume (test_core.CoreTests.test_zero_volume) ... ok
+test_buy_quantity_and_state_tamper (test_r01.ReplayRegression.test_buy_quantity_and_state_tamper) ... ok
+test_coherent_forged_dividend_qty_and_cash (test_r01.ReplayRegression.test_coherent_forged_dividend_qty_and_cash) ... ok
+test_coherent_forged_split_results (test_r01.ReplayRegression.test_coherent_forged_split_results) ... ok
+test_dividend_recorded_qty_only_tamper (test_r01.ReplayRegression.test_dividend_recorded_qty_only_tamper) ... ok
+test_dividend_uses_rebuilt_qty (test_r01.ReplayRegression.test_dividend_uses_rebuilt_qty) ... ok
+test_duplicate_journal_action_with_matching_state (test_r01.ReplayRegression.test_duplicate_journal_action_with_matching_state) ... ok
+test_future_event (test_r01.ReplayRegression.test_future_event) ... ok
+test_nan_journal (test_r01.ReplayRegression.test_nan_journal) ... ok
+test_no_tolerance_override (test_r01.ReplayRegression.test_no_tolerance_override) ... ok
+test_original_cash_delta_tamper (test_r01.ReplayRegression.test_original_cash_delta_tamper) ... ok
+test_reordered_events (test_r01.ReplayRegression.test_reordered_events) ... ok
+test_split_recorded_whole_only_tamper (test_r01.ReplayRegression.test_split_recorded_whole_only_tamper) ... ok
+test_split_then_dividend_replays (test_r01.ReplayRegression.test_split_then_dividend_replays) ... ok
+test_unknown_event (test_r01.ReplayRegression.test_unknown_event) ... ok
+test_diff_over_locked_tolerance (test_r01.SampleRegression.test_diff_over_locked_tolerance) ... ok
+test_dividend_precision (test_r01.SampleRegression.test_dividend_precision) ... ok
+test_duplicate (test_r01.SampleRegression.test_duplicate) ... ok
+test_duplicate_dividend (test_r01.SampleRegression.test_duplicate_dividend) ... ok
+test_each_tolerance_locked (test_r01.SampleRegression.test_each_tolerance_locked) ... ok
+test_exact_registered_samples (test_r01.SampleRegression.test_exact_registered_samples) ... ok
+test_forged_qc_distribution (test_r01.SampleRegression.test_forged_qc_distribution) ... ok
+test_later_dividend_cherry_pick (test_r01.SampleRegression.test_later_dividend_cherry_pick) ... ok
+test_missing_dividend_blocks (test_r01.SampleRegression.test_missing_dividend_blocks) ... ok
+test_missing_price_blocks (test_r01.SampleRegression.test_missing_price_blocks) ... ok
+test_missing_reference_blocks (test_r01.SampleRegression.test_missing_reference_blocks) ... ok
+test_original_experiment_unchanged (test_r01.SampleRegression.test_original_experiment_unchanged) ... ok
+test_reference_first_two_cherry_pick (test_r01.SampleRegression.test_reference_first_two_cherry_pick) ... ok
+test_reference_holdout (test_r01.SampleRegression.test_reference_holdout) ... ok
+test_reference_incomplete (test_r01.SampleRegression.test_reference_incomplete) ... ok
+test_reference_unsorted (test_r01.SampleRegression.test_reference_unsorted) ... ok
+test_tighter_tolerance_also_denied (test_r01.SampleRegression.test_tighter_tolerance_also_denied) ... ok
+test_tolerance_config_tamper (test_r01.SampleRegression.test_tolerance_config_tamper) ... ok
+test_valid_optional_split_and_boundary (test_r01.SampleRegression.test_valid_optional_split_and_boundary) ... ok
+test_wrong_corporate_action_field (test_r01.SampleRegression.test_wrong_corporate_action_field) ... ok
+test_wrong_price_date (test_r01.SampleRegression.test_wrong_price_date) ... ok
+test_wrong_price_field (test_r01.SampleRegression.test_wrong_price_field) ... ok
+test_wrong_symbol (test_r01.SampleRegression.test_wrong_symbol) ... ok
 
 ----------------------------------------------------------------------
-Ran 28 tests in 0.008s
+Ran 64 tests in 0.019s
 
 OK

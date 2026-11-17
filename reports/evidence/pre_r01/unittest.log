@@ -1,0 +1,33 @@
+test_bundle_matches_sources (test_cloud.CloudContract.test_bundle_matches_sources) ... ok
+test_mock_stream_holdout_does_not_change_books (test_cloud.CloudContract.test_mock_stream_holdout_does_not_change_books) ... ok
+test_no_order_network_or_performance_methods (test_cloud.CloudContract.test_no_order_network_or_performance_methods) ... ok
+test_adjusted_rejected (test_core.CoreTests.test_adjusted_rejected) ... ok
+test_cash_reconciliation (test_core.CoreTests.test_cash_reconciliation) ... ok
+test_dividend_conservation (test_core.CoreTests.test_dividend_conservation) ... ok
+test_duplicate (test_core.CoreTests.test_duplicate) ... ok
+test_duplicate_dividend_rejected (test_core.CoreTests.test_duplicate_dividend_rejected) ... ok
+test_fee_and_remaining_cash (test_core.CoreTests.test_fee_and_remaining_cash) ... ok
+test_fractional_split_blocks (test_core.CoreTests.test_fractional_split_blocks) ... ok
+test_fractional_split_cash (test_core.CoreTests.test_fractional_split_cash) ... ok
+test_good_quality (test_core.CoreTests.test_good_quality) ... ok
+test_holdout_and_validation_accounting_denied (test_core.CoreTests.test_holdout_and_validation_accounting_denied) ... ok
+test_independent_samples (test_core.CoreTests.test_independent_samples) ... ok
+test_insufficient (test_core.CoreTests.test_insufficient) ... ok
+test_invalid_fee (test_core.CoreTests.test_invalid_fee) ... ok
+test_invalid_prices (test_core.CoreTests.test_invalid_prices) ... ok
+test_missing (test_core.CoreTests.test_missing) ... ok
+test_missing_independent_evidence (test_core.CoreTests.test_missing_independent_evidence) ... ok
+test_no_signal (test_core.CoreTests.test_no_signal) ... ok
+test_outside_quality_denied (test_core.CoreTests.test_outside_quality_denied) ... ok
+test_purpose_denied (test_core.CoreTests.test_purpose_denied) ... ok
+test_sample_holdout_denied (test_core.CoreTests.test_sample_holdout_denied) ... ok
+test_share_reconciliation (test_core.CoreTests.test_share_reconciliation) ... ok
+test_signal_then_fill (test_core.CoreTests.test_signal_then_fill) ... ok
+test_split_conservation (test_core.CoreTests.test_split_conservation) ... ok
+test_unexpected_session (test_core.CoreTests.test_unexpected_session) ... ok
+test_zero_volume (test_core.CoreTests.test_zero_volume) ... ok
+
+----------------------------------------------------------------------
+Ran 28 tests in 0.008s
+
+OK
